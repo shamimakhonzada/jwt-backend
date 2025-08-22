@@ -5,11 +5,11 @@ import { env } from "../config/env.js";
 import { ApiError } from "../utils/ApiError.js";
 
 export async function register({ name, email, password }) {
-  const exists = await prisma.user.findUnique({ where: { email } });
+  const exists = await prisma.users.findUnique({ where: { email } });
   if (exists) throw new ApiError(409, "Email already in use");
 
   const hashed = await bcrypt.hash(password, 10);
-  const user = await prisma.user.create({
+  const user = await prisma.users.create({
     data: { name, email, password: hashed },
   });
   const token = signToken(user);
@@ -17,7 +17,7 @@ export async function register({ name, email, password }) {
 }
 
 export async function login({ email, password }) {
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.users.findUnique({ where: { email } });
   if (!user) throw new ApiError(401, "Invalid credentials");
   const ok = await bcrypt.compare(password, user.password);
   if (!ok) throw new ApiError(401, "Invalid credentials");
